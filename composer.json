@@ -18,6 +18,7 @@
     ],
     "require": {
         "php": "~7.0",
+        "elasticsearch/elasticsearch": "^5.3",
         "laravel/scout": "^3.0"
     },
     "require-dev": {
