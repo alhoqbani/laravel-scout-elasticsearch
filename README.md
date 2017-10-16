@@ -26,7 +26,7 @@ Publish scout config file and change the driver to `elastic`
 ``` 
 Publish the config file for this library:
 ```bash
-phph artisan vendor:publish --provider Alhoqbani\Elastic\ServiceProvider
+php artisan vendor:publish --provider "Alhoqbani\Elastic\ScoutElasticServiceProvider"
 ```
 update the setting for elasticsearch host. 
 
