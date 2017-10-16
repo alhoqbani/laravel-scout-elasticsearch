@@ -29,7 +29,8 @@ class ScoutElasticServiceProvider extends ServiceProvider
         });
 
         $this->publishes([
-            __DIR__ . '/../config/scout-elastic.php' => $this->app['path.config'] . DIRECTORY_SEPARATOR . 'scout-elastic.php',
+            __DIR__ . '/../config/scout-elastic.php' =>
+                $this->app['path.config'] . DIRECTORY_SEPARATOR . 'scout-elastic.php',
         ]);
     }
 }

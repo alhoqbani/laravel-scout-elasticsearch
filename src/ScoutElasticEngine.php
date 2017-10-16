@@ -183,7 +183,6 @@ class ScoutElasticEngine extends Engine
             if (isset($models[$key])) {
                 return $models[$key];
             }
-
         })->filter()->values();
     }
 

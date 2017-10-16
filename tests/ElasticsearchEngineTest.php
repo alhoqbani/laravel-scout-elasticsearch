@@ -139,15 +139,17 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $model->shouldReceive('whereIn')->once()->with('id', [1])->andReturn($model);
         $model->shouldReceive('get')->once()->andReturn(Collection::make([new ElasticTestModel]));
 
-        $results = $engine->map([
+        $results = $engine->map(
+            [
             'hits' => [
                 'total' => 1,
                 'hits'  => [
                     ['_id' => 1],
                 ],
             ],
-        ],
-            $model);
+            ],
+            $model
+        );
 
         $this->assertEquals(1, count($results));
     }
