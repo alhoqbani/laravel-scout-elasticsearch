@@ -2,8 +2,9 @@
 
 namespace Alhoqbani\Elastic;
 
-class ExampleTest extends \PHPUnit\Framework\TestCase
+class ElasticEngineTest extends AbstractTestCase
 {
+
     /**
      * Test that true does in fact equal true
      */

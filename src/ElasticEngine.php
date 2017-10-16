@@ -2,11 +2,30 @@
 
 namespace Alhoqbani\Elastic;
 
+use Elasticsearch\Client;
+use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 
 class ElasticEngine extends Engine
 {
+
+    /**
+     * The Elasticsearch client.
+     *
+     * @var \Elasticsearch\Client
+     */
+    private $client;
+
+    /**
+     * ElasticSearchScoutEngine constructor.
+     *
+     * @param \Elasticsearch\Client $client
+     */
+    public function __construct(Client $client)
+    {
+        $this->client = $client;
+    }
 
     /**
      * Update the given model in the index.
@@ -17,7 +36,27 @@ class ElasticEngine extends Engine
      */
     public function update($models)
     {
-        // TODO: Implement update() method.
+        $index = $models->first()->searchableAs();
+
+        $params = ['body' => []];
+        foreach ($models as $model) {
+            $array = $model->toSearchableArray();
+
+            if (empty($array)) {
+                return;
+            }
+
+            $params['body'][] = [
+                'index' => [
+                    '_index' => $index,
+                    '_type'  => $index,
+                    '_id'    => $model->getKey(),
+                ],
+            ];
+            $params['body'][] = $array;
+        }
+
+        $this->client->bulk($params);
     }
 
     /**
@@ -29,7 +68,20 @@ class ElasticEngine extends Engine
      */
     public function delete($models)
     {
-        // TODO: Implement delete() method.
+        $index = $models->first()->searchableAs();
+
+        $params = ['body' => []];
+        foreach ($models as $model) {
+            $params['body'][] = [
+                'delete' => [
+                    '_index' => $index,
+                    '_type'  => $index,
+                    '_id'    => $model->getKey(),
+                ],
+            ];
+        }
+
+        $this->client->bulk($params);
     }
 
     /**
@@ -41,7 +93,27 @@ class ElasticEngine extends Engine
      */
     public function search(Builder $builder)
     {
-        // TODO: Implement search() method.
+        if ($builder->callback) {
+            return call_user_func(
+                $builder->callback,
+                $this->client,
+                $builder->query
+            );
+        }
+
+        return $this->client->search([
+            'index' => $builder->index ?? $builder->model->searchableAs(),
+            'type'  => $builder->index ?? $builder->model->searchableAs(),
+            'body'  => [
+                'size'  => $builder->limit ?? $builder->model->getPerPage(),
+                'query' => [
+                    'multi_match' => [
+                        'query'  => $builder->query,
+                        'fields' => '_all',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -55,7 +127,20 @@ class ElasticEngine extends Engine
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
-        // TODO: Implement paginate() method.
+        return $this->client->search([
+            'index' => $builder->index ?? $builder->model->searchableAs(),
+            'type'  => $builder->index ?? $builder->model->searchableAs(),
+            'body'  => [
+                'size'  => $perPage,
+                'from'  => ($page - 1) * $perPage,
+                'query' => [
+                    'multi_match' => [
+                        'query'  => $builder->query,
+                        'fields' => '_all',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -67,7 +152,7 @@ class ElasticEngine extends Engine
      */
     public function mapIds($results)
     {
-        // TODO: Implement mapIds() method.
+        return collect($results['hits']['hits'])->pluck('_id')->values();
     }
 
     /**
@@ -80,7 +165,26 @@ class ElasticEngine extends Engine
      */
     public function map($results, $model)
     {
-        // TODO: Implement map() method.
+        if ($results['hits']['total'] === 0) {
+            return Collection::make();
+        }
+
+        $keys = collect($results['hits']['hits'])
+            ->pluck('_id')->values()->all();
+
+        $models = $model->whereIn(
+            $model->getQualifiedKeyName(),
+            $keys
+        )->get()->keyBy($model->getKeyName());
+
+        return Collection::make($results['hits']['hits'])->map(function ($hit) use ($model, $models) {
+            $key = $hit['_id'];
+
+            if (isset($models[$key])) {
+                return $models[$key];
+            }
+
+        })->filter()->values();
     }
 
     /**
@@ -92,6 +196,6 @@ class ElasticEngine extends Engine
      */
     public function getTotalCount($results)
     {
-        // TODO: Implement getTotalCount() method.
+        return $results['hits']['total'];
     }
 }
