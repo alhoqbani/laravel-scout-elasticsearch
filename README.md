@@ -7,7 +7,9 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-Add Elasticsearch support to Laravel Scout
+Add [elasticsearch](elastic.co/guide/index.html) engine to [Laravel Scout](https://laravel.com/docs/5.5/scout)
+
+# Under development. Not ready for production.
 
 ## Install
 
@@ -18,11 +20,15 @@ $ composer require alhoqbani/laravel-scout-elasticsearch
 ```
 
 ## Usage
-
-``` php
-$skeleton = new Alhoqbani\Elastic();
-echo $skeleton->echoPhrase('Hello, League!');
+Publish scout config file and change the driver to `elastic`
+```php
+    'driver' => env('SCOUT_DRIVER', 'elastic'),
+``` 
+Publish the config file for this library:
+```bash
+phph artisan vendor:publish --provider Alhoqbani\Elastic\ServiceProvider
 ```
+update the setting for elasticsearch host. 
 
 ## Change log
 
