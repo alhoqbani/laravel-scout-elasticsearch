@@ -19,7 +19,7 @@ class ScoutElasticServiceProvider extends ServiceProvider
 
         $this->app->make(EngineManager::class)->extend('elastic', function () {
 
-            $hosts = $this->app['config.services.scout-elastic.hosts'];
+            $hosts = $this->app['config']->get('services.scout-elastic.hosts');
 
             $client = ClientBuilder::create()
                 ->setHosts($hosts)
