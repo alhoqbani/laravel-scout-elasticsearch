@@ -5,7 +5,7 @@ namespace Alhoqbani\Elastic;
 use Elasticsearch\Client;
 use Mockery;
 use Laravel\Scout\Builder;
-use Alhoqbani\Elastic\ElasticEngine;
+use Alhoqbani\Elastic\ScoutElasticEngine;
 use Alhoqbani\Elastic\Fixtures\ElasticTestModel;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -32,7 +32,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ],
         ]);
 
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
         $engine->update(Collection::make([$model]));
     }
 
@@ -52,7 +52,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
                 ],
             ],
         ]);
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
         $engine->delete(Collection::make([$model]));
     }
 
@@ -74,7 +74,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ],
         ]);
 
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term');
 //        $builder->where('foo', 1);
         $engine->search($builder);
@@ -98,7 +98,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ],
         ]);
 
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term');
         $builder->within('custom_index');
         $engine->search($builder);
@@ -122,7 +122,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
             ],
         ]);
 
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term');
         $builder->take('3');
         $engine->search($builder);
@@ -131,7 +131,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
     public function test_map_correctly_maps_results_to_models()
     {
         $client = Mockery::mock(Client::class);
-        $engine = new ElasticEngine($client);
+        $engine = new ScoutElasticEngine($client);
 
         $model = Mockery::mock('StdClass');
         $model->shouldReceive('getKeyName')->andReturn('id');

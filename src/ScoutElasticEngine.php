@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 
-class ElasticEngine extends Engine
+class ScoutElasticEngine extends Engine
 {
 
     /**
