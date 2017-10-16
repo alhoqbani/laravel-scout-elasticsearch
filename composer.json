@@ -1,7 +1,7 @@
 {
     "name": "alhoqbani/laravel-scout-elasticsearch",
     "type": "library",
-    "description": "Add [elasticsearch](elastic.co/guide/index.html) engine to [Laravel Scout](https://laravel.com/docs/5.5/scout)",
+    "description": "Add Elasticsearch support to Laravel Scout",
     "keywords": [
         "alhoqbani",
         "laravel-scout-elasticsearch"
@@ -17,10 +17,12 @@
         }
     ],
     "require": {
-        "php" : "~7.0"
+        "php": "~7.0",
+        "laravel/scout": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit" : ">=5.4.3",
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^6.4",
         "squizlabs/php_codesniffer": "^2.3"
     },
     "autoload": {
