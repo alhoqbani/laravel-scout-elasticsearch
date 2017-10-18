@@ -108,11 +108,12 @@ class ScoutElasticEngine extends Engine
         ];
 
         if ($builder->callback) {
-            $params =  call_user_func(
-                $builder->callback,
-                $this->client,
-                $builder->query
-            );
+            $params = array_merge($params,
+                call_user_func(
+                    $builder->callback,
+                    $this->client,
+                    $builder->query
+                ));
         }
 
         return $this->client->search($params);
@@ -143,7 +144,7 @@ class ScoutElasticEngine extends Engine
         ];
 
         if ($builder->callback) {
-            $params =  call_user_func(
+            $params = call_user_func(
                 $builder->callback,
                 $this->client,
                 $builder->query

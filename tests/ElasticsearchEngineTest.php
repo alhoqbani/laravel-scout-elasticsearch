@@ -141,11 +141,48 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client = Mockery::mock(Client::class);
 
-        $client->shouldReceive('search')->with($params)->once();
+        $client->shouldReceive('search')->with(\Mockery::subset($params))->once();
 
         $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term', function () use ($params) {
             return $params;
+        });
+
+        $engine->search($builder);
+    }
+
+    public function test_search_merge_defaults_params_with_params_from_closure()
+    {
+        $model = new ElasticTestModel;
+
+        $customParamsFromClosure = [
+            'type'    => 'custom type',
+            '_source' => ['title', 'name'],
+            'body'    => [
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        $expectedParams = [
+            'index'   => $model->searchableAs(),
+            'type'    => $customParamsFromClosure['type'],
+            'size'    => $model->getPerPage(),
+            '_source' => $customParamsFromClosure['_source'],
+            'body'    => $customParamsFromClosure['body'],
+        ];
+
+        $client = Mockery::mock(Client::class);
+
+        $client->shouldReceive('search')->withArgs(function ($params) use ($expectedParams) {
+            $this->assertEquals($expectedParams, $params);
+            return true;
+        });
+
+        $engine = new ScoutElasticEngine($client);
+        $builder = new Builder($model, 'search term', function () use ($customParamsFromClosure) {
+            return $customParamsFromClosure;
         });
 
         $engine->search($builder);
