@@ -94,28 +94,7 @@ class ScoutElasticEngine extends Engine
      */
     public function search(Builder $builder)
     {
-        $params = [
-            'index' => $builder->index ?? $builder->model->searchableAs(),
-            'type'  => $builder->index ?? $builder->model->searchableAs(),
-            'size'  => $builder->limit ?? $builder->model->getPerPage(),
-            'body'  => [
-                'query' => [
-                    'multi_match' => [
-                        'query'  => $builder->query,
-                        'fields' => '_all',
-                    ],
-                ],
-            ],
-        ];
-
-        if ($builder->callback) {
-            $params = array_merge($params,
-                call_user_func(
-                    $builder->callback,
-                    $this->client,
-                    $builder->query
-                ));
-        }
+        $params = $this->prepareParams($builder);
 
         return $this->client->search($params);
     }
@@ -131,27 +110,7 @@ class ScoutElasticEngine extends Engine
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
-        $params = [
-            'index' => $builder->index ?? $builder->model->searchableAs(),
-            'type'  => $builder->index ?? $builder->model->searchableAs(),
-            'body'  => [
-                'query' => [
-                    'multi_match' => [
-                        'query'  => $builder->query,
-                        'fields' => '_all',
-                    ],
-                ],
-            ],
-        ];
-
-        if ($builder->callback) {
-            $params = array_merge($params,
-                call_user_func(
-                    $builder->callback,
-                    $this->client,
-                    $builder->query
-                ));
-        }
+        $params = $this->prepareParams($builder);
 
         $params['size'] = $perPage;
         $params['from'] = ($page - 1) * $perPage;
@@ -213,5 +172,40 @@ class ScoutElasticEngine extends Engine
     public function getTotalCount($results)
     {
         return $results['hits']['total'];
+    }
+
+    /**
+     * Parse and prepare the params to send to Elasticsearch client
+     *
+     * @param \Laravel\Scout\Builder $builder
+     *
+     * @return array
+     */
+    protected function prepareParams(Builder $builder)
+    {
+        $params = [
+            'index' => $builder->index ?? $builder->model->searchableAs(),
+            'type'  => $builder->index ?? $builder->model->searchableAs(),
+            'size'  => $builder->limit ?? $builder->model->getPerPage(),
+            'body'  => [
+                'query' => [
+                    'multi_match' => [
+                        'query'  => $builder->query,
+                        'fields' => '_all',
+                    ],
+                ],
+            ],
+        ];
+
+        if ($builder->callback) {
+            $params = array_merge($params,
+                call_user_func(
+                    $builder->callback,
+                    $this->client,
+                    $builder->query
+                ));
+        }
+
+        return $params;
     }
 }
