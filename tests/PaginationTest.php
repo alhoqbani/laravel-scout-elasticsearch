@@ -76,4 +76,52 @@ class PaginationTest extends AbstractTestCase
 
         $engine->paginate($builder, 10, 1);
     }
+
+    public function test_paginate_will_merge_defaults_params_with_params_from_closure()
+    {
+        $model = new ElasticTestModel;
+
+        $customParamsFromClosure = [
+            'type'    => 'custom type',
+            '_source' => ['title', 'name'],
+            'size'    => 'will be ignored size',
+            'from'    => 'will be ignored from',
+            'body'    => [
+                'size'  => 'from should be removed from params',
+                'from'  => 'size should be removed from params',
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        $expectedParams = [
+            'index'   => $model->searchableAs(),
+            'type'    => $customParamsFromClosure['type'],
+            'size'    => 10,
+            'from'    => 0,
+            '_source' => $customParamsFromClosure['_source'],
+            'body'    => [
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        $client = Mockery::mock(Client::class);
+
+        $client->shouldReceive('search')->withArgs(function ($params) use ($expectedParams) {
+            $this->assertEquals($expectedParams, $params);
+
+            return true;
+        });
+
+        $engine = new ScoutElasticEngine($client);
+        $builder = new Builder($model, 'search term', function () use ($customParamsFromClosure) {
+            return $customParamsFromClosure;
+        });
+
+        $engine->paginate($builder, 10, 1);
+    }
+
 }

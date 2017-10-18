@@ -4,6 +4,7 @@ namespace Alhoqbani\Elastic;
 
 use Elasticsearch\Client;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 
@@ -144,15 +145,17 @@ class ScoutElasticEngine extends Engine
         ];
 
         if ($builder->callback) {
-            $params = call_user_func(
-                $builder->callback,
-                $this->client,
-                $builder->query
-            );
+            $params = array_merge($params,
+                call_user_func(
+                    $builder->callback,
+                    $this->client,
+                    $builder->query
+                ));
         }
 
         $params['size'] = $perPage;
         $params['from'] = ($page - 1) * $perPage;
+        unset($params['body']['size'], $params['body']['from']);
 
         return $this->client->search($params);
     }
