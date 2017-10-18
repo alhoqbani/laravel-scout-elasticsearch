@@ -62,9 +62,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type'  => 'table',
+            'size'  => 15,
             'body'  => [
-                'size'  => 15,
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -85,9 +84,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'custom_index',
-            'type'  => 'custom_index',
+            'size'  => 15,
             'body'  => [
-                'size'  => 15,
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -109,9 +107,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type'  => 'table',
+            'size'  => '3',
             'body'  => [
-                'size'  => '3',
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -131,21 +128,55 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         $params = [
             'index' => 'any index',
-            'type' => 'any type',
-            'body' => [
+            'body'  => [
                 'query' => [
-                    'match_all' => new \stdClass()
-                ]
-            ]
+                    'match_all' => new \stdClass(),
+                ],
+            ],
         ];
 
         $client = Mockery::mock(Client::class);
 
-        $client->shouldReceive('search')->with($params)->once();
+        $client->shouldReceive('search')->with(\Mockery::subset($params))->once();
 
         $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term', function () use ($params) {
             return $params;
+        });
+
+        $engine->search($builder);
+    }
+
+    public function test_search_merge_defaults_params_with_params_from_closure()
+    {
+        $model = new ElasticTestModel;
+
+        $customParamsFromClosure = [
+            '_source' => ['title', 'name'],
+            'body'    => [
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        $expectedParams = [
+            'index'   => $model->searchableAs(),
+            'size'    => $model->getPerPage(),
+            '_source' => $customParamsFromClosure['_source'],
+            'body'    => $customParamsFromClosure['body'],
+        ];
+
+        $client = Mockery::mock(Client::class);
+
+        $client->shouldReceive('search')->withArgs(function ($params) use ($expectedParams) {
+            $this->assertEquals($expectedParams, $params);
+            return true;
+        });
+
+        $engine = new ScoutElasticEngine($client);
+        $builder = new Builder($model, 'search term', function () use ($customParamsFromClosure) {
+            return $customParamsFromClosure;
         });
 
         $engine->search($builder);
