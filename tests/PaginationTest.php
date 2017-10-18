@@ -15,21 +15,12 @@ class PaginationTest extends AbstractTestCase
     public function test_paginate_will_send_correct_size_and_from_params()
     {
         $client = Mockery::mock(Client::class);
-
-        $client->shouldReceive('search')->with([
-            'index' => 'table',
-            'type'  => 'table',
-            'body'  => [
-                'size'  => 13,
-                'from'  => 39,
-                'query' => [
-                    'multi_match' => [
-                        'query'  => 'search term',
-                        'fields' => '_all',
-                    ],
-                ],
-            ],
-        ]);
+        $client->shouldReceive('search')->with(\Mockery::subset([
+            'body' => [
+                'size' => 13,
+                'from' => 39
+            ]
+        ]));
 
         $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term');
