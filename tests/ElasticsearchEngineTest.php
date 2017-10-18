@@ -63,8 +63,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $client->shouldReceive('search')->with([
             'index' => 'table',
             'type'  => 'table',
+            'size'  => 15,
             'body'  => [
-                'size'  => 15,
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -86,8 +86,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $client->shouldReceive('search')->with([
             'index' => 'custom_index',
             'type'  => 'custom_index',
+            'size'  => 15,
             'body'  => [
-                'size'  => 15,
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -110,8 +110,8 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $client->shouldReceive('search')->with([
             'index' => 'table',
             'type'  => 'table',
+            'size'  => '3',
             'body'  => [
-                'size'  => '3',
                 'query' => [
                     'multi_match' => [
                         'query'  => 'search term',
@@ -131,12 +131,12 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         $params = [
             'index' => 'any index',
-            'type' => 'any type',
-            'body' => [
+            'type'  => 'any type',
+            'body'  => [
                 'query' => [
-                    'match_all' => new \stdClass()
-                ]
-            ]
+                    'match_all' => new \stdClass(),
+                ],
+            ],
         ];
 
         $client = Mockery::mock(Client::class);

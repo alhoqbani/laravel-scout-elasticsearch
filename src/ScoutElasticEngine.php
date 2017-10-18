@@ -96,8 +96,8 @@ class ScoutElasticEngine extends Engine
         $params = [
             'index' => $builder->index ?? $builder->model->searchableAs(),
             'type'  => $builder->index ?? $builder->model->searchableAs(),
+            'size'  => $builder->limit ?? $builder->model->getPerPage(),
             'body'  => [
-                'size'  => $builder->limit ?? $builder->model->getPerPage(),
                 'query' => [
                     'multi_match' => [
                         'query'  => $builder->query,
@@ -150,8 +150,8 @@ class ScoutElasticEngine extends Engine
             );
         }
 
-        $params['body']['size'] = $perPage;
-        $params['body']['from'] = ($page - 1) * $perPage;
+        $params['size'] = $perPage;
+        $params['from'] = ($page - 1) * $perPage;
 
         return $this->client->search($params);
     }

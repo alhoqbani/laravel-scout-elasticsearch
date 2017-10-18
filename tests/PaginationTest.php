@@ -16,10 +16,8 @@ class PaginationTest extends AbstractTestCase
     {
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('search')->with(\Mockery::subset([
-            'body' => [
-                'size' => 13,
-                'from' => 39,
-            ],
+            'size' => 13,
+            'from' => 39,
         ]));
 
         $engine = new ScoutElasticEngine($client);
@@ -62,7 +60,7 @@ class PaginationTest extends AbstractTestCase
 
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('search')->withArgs(function ($args) {
-            return $args['body']['size'] == 10 && $args['body']['from'] == 0 ;
+            return $args['size'] == 10 && $args['from'] == 0;
         });
 
         $engine = new ScoutElasticEngine($client);
@@ -72,7 +70,7 @@ class PaginationTest extends AbstractTestCase
                     'query' => [
                         'custom_query',
                     ],
-                ]
+                ],
             ];
         });
 
