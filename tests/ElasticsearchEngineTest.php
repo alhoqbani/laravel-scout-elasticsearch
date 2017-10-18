@@ -62,7 +62,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type'  => 'table',
             'size'  => 15,
             'body'  => [
                 'query' => [
@@ -85,7 +84,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'custom_index',
-            'type'  => 'custom_index',
             'size'  => 15,
             'body'  => [
                 'query' => [
@@ -109,7 +107,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type'  => 'table',
             'size'  => '3',
             'body'  => [
                 'query' => [
@@ -131,7 +128,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         $params = [
             'index' => 'any index',
-            'type'  => 'any type',
             'body'  => [
                 'query' => [
                     'match_all' => new \stdClass(),
@@ -156,7 +152,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $model = new ElasticTestModel;
 
         $customParamsFromClosure = [
-            'type'    => 'custom type',
             '_source' => ['title', 'name'],
             'body'    => [
                 'query' => [
@@ -167,7 +162,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $expectedParams = [
             'index'   => $model->searchableAs(),
-            'type'    => $customParamsFromClosure['type'],
             'size'    => $model->getPerPage(),
             '_source' => $customParamsFromClosure['_source'],
             'body'    => $customParamsFromClosure['body'],

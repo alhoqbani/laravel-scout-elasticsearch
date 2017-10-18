@@ -185,7 +185,7 @@ class ScoutElasticEngine extends Engine
     {
         $params = [
             'index' => $builder->index ?? $builder->model->searchableAs(),
-            'type'  => $builder->index ?? $builder->model->searchableAs(),
+//            'type'  => $builder->index ?? $builder->model->searchableAs(),
             'size'  => $builder->limit ?? $builder->model->getPerPage(),
             'body'  => [
                 'query' => [

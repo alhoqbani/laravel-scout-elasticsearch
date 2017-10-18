@@ -25,13 +25,12 @@ class PaginationTest extends AbstractTestCase
         $engine->paginate($builder, 13, 4);
     }
 
-    public function test_paginate_will_send_correct_index_and_type_params()
+    public function test_paginate_will_send_correct_index_param()
     {
         $model = new ElasticTestModel;
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('search')->with(\Mockery::subset([
             'index' => $model->searchableAs(),
-            'type'  => $model->searchableAs(),
         ]));
 
         $engine = new ScoutElasticEngine($client);
@@ -39,13 +38,12 @@ class PaginationTest extends AbstractTestCase
         $engine->paginate($builder, 13, 4);
     }
 
-    public function test_paginate_will_send_correct_index_and_type_params_when_custom_index_is_provided()
+    public function test_paginate_will_send_correct_index_param_when_custom_index_is_provided()
     {
         $model = new ElasticTestModel;
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('search')->with(\Mockery::subset([
             'index' => 'custom_index',
-            'type'  => 'custom_index',
         ]));
 
         $engine = new ScoutElasticEngine($client);
@@ -82,7 +80,6 @@ class PaginationTest extends AbstractTestCase
         $model = new ElasticTestModel;
 
         $customParamsFromClosure = [
-            'type'    => 'custom type',
             '_source' => ['title', 'name'],
             'size'    => 'will be ignored size',
             'from'    => 'will be ignored from',
@@ -97,7 +94,6 @@ class PaginationTest extends AbstractTestCase
 
         $expectedParams = [
             'index'   => $model->searchableAs(),
-            'type'    => $customParamsFromClosure['type'],
             'size'    => 10,
             'from'    => 0,
             '_source' => $customParamsFromClosure['_source'],
