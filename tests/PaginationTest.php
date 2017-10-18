@@ -55,4 +55,27 @@ class PaginationTest extends AbstractTestCase
         $builder->within('custom_index');
         $engine->paginate($builder, 10, 1);
     }
+
+    public function test_paginate_will_send_correct_params_when_search_by_closure()
+    {
+        $model = new ElasticTestModel;
+
+        $client = Mockery::mock(Client::class);
+        $client->shouldReceive('search')->withArgs(function ($args) {
+            return $args['body']['size'] == 10 && $args['body']['from'] == 0 ;
+        });
+
+        $engine = new ScoutElasticEngine($client);
+        $builder = new Builder($model, 'search term', function () {
+            return [
+                'body' => [
+                    'query' => [
+                        'custom_query',
+                    ],
+                ]
+            ];
+        });
+
+        $engine->paginate($builder, 10, 1);
+    }
 }
