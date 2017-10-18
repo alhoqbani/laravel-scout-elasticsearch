@@ -129,12 +129,10 @@ class ScoutElasticEngine extends Engine
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
-        return $this->client->search([
+        $params = [
             'index' => $builder->index ?? $builder->model->searchableAs(),
             'type'  => $builder->index ?? $builder->model->searchableAs(),
             'body'  => [
-                'size'  => $perPage,
-                'from'  => ($page - 1) * $perPage,
                 'query' => [
                     'multi_match' => [
                         'query'  => $builder->query,
@@ -142,7 +140,20 @@ class ScoutElasticEngine extends Engine
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        if ($builder->callback) {
+            $params =  call_user_func(
+                $builder->callback,
+                $this->client,
+                $builder->query
+            );
+        }
+
+        $params['body']['size'] = $perPage;
+        $params['body']['from'] = ($page - 1) * $perPage;
+
+        return $this->client->search($params);
     }
 
     /**
