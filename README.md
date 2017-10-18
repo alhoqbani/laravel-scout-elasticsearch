@@ -20,6 +20,9 @@ $ composer require alhoqbani/laravel-scout-elasticsearch
 ```
 
 ## Usage
+
+### Quick Start
+
 Publish scout config file and change the driver to `elastic`
 ```php
     'driver' => env('SCOUT_DRIVER', 'elastic'),
@@ -28,7 +31,26 @@ Publish the config file for this library:
 ```bash
 php artisan vendor:publish --provider "Alhoqbani\Elastic\ScoutElasticServiceProvider"
 ```
-update the setting for elasticsearch host. 
+update the configuration for elasticsearch hosts. 
+
+Add `Laravel\Scout\Searchable` trait to your model
+```php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
+
+class Post extends Model
+{
+    use Searchable;
+    //
+}
+```
+
+- Run `php artisan scout:import "App\Post"` to import all records to elasticsearch
+- Search `$posts = App\Post::search('Star Trek')->get();`
 
 ## Change log
 
