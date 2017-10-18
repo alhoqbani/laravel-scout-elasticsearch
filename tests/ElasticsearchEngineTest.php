@@ -76,7 +76,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $engine = new ScoutElasticEngine($client);
         $builder = new Builder(new ElasticTestModel, 'search term');
-//        $builder->where('foo', 1);
         $engine->search($builder);
     }
 
@@ -128,6 +127,30 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $engine->search($builder);
     }
 
+    public function test_search_accept_closure_to_override_params()
+    {
+        $params = [
+            'index' => 'any index',
+            'type' => 'any type',
+            'body' => [
+                'query' => [
+                    'match_all' => new \stdClass()
+                ]
+            ]
+        ];
+
+        $client = Mockery::mock(Client::class);
+
+        $client->shouldReceive('search')->with($params)->once();
+
+        $engine = new ScoutElasticEngine($client);
+        $builder = new Builder(new ElasticTestModel, 'search term', function () use ($params) {
+            return $params;
+        });
+
+        $engine->search($builder);
+    }
+
     public function test_map_correctly_maps_results_to_models()
     {
         $client = Mockery::mock(Client::class);
@@ -141,12 +164,12 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
         $results = $engine->map(
             [
-            'hits' => [
-                'total' => 1,
-                'hits'  => [
-                    ['_id' => 1],
+                'hits' => [
+                    'total' => 1,
+                    'hits'  => [
+                        ['_id' => 1],
+                    ],
                 ],
-            ],
             ],
             $model
         );

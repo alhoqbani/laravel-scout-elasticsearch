@@ -93,15 +93,7 @@ class ScoutElasticEngine extends Engine
      */
     public function search(Builder $builder)
     {
-        if ($builder->callback) {
-            return call_user_func(
-                $builder->callback,
-                $this->client,
-                $builder->query
-            );
-        }
-
-        return $this->client->search([
+        $params = [
             'index' => $builder->index ?? $builder->model->searchableAs(),
             'type'  => $builder->index ?? $builder->model->searchableAs(),
             'body'  => [
@@ -113,7 +105,17 @@ class ScoutElasticEngine extends Engine
                     ],
                 ],
             ],
-        ]);
+        ];
+
+        if ($builder->callback) {
+            $params =  call_user_func(
+                $builder->callback,
+                $this->client,
+                $builder->query
+            );
+        }
+
+        return $this->client->search($params);
     }
 
     /**
